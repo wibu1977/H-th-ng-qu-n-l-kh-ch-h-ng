@@ -1,0 +1,21 @@
+{
+  "name": "vietnamese-grocery-customer-management",
+  "version": "1.0.0",
+  "description": "A Vietnamese grocery shop customer management system with Supabase backend",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "dev": "serve ."
+  },
+  "keywords": [
+    "customer-management",
+    "grocery",
+    "vietnamese",
+    "supabase",
+    "vanilla-js"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

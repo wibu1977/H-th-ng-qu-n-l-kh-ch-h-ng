@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Khách Hàng</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-store"></i> Hệ Thống Quản Lý Khách Hàng</h1>
+                <p>Cửa hàng tạp hóa</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Add New Customer Section -->
+            <section class="add-customer-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-user-plus"></i> Thêm Khách Hàng Mới</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="customerForm" class="customer-form">
+                            <div class="form-group">
+                                <label for="customerId">Mã Khách Hàng</label>
+                                <input type="text" id="customerId" name="customerId" required readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="fullName">Họ và Tên</label>
+                                <input type="text" id="fullName" name="fullName" required placeholder="Nhập họ và tên khách hàng">
+                            </div>
+                            <div class="form-group">
+                                <label for="phoneNumber">Số Điện Thoại</label>
+                                <input type="tel" id="phoneNumber" name="phoneNumber" required placeholder="Nhập số điện thoại">
+                            </div>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-plus"></i> Thêm Khách Hàng
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customer List Section -->
+            <section class="customer-list-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-users"></i> Danh Sách Khách Hàng</h2>
+                        <div class="search-container">
+                            <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="customer-stats">
+                            <div class="stat-item">
+                                <span class="stat-number" id="totalCustomers">0</span>
+                                <span class="stat-label">Tổng khách hàng</span>
+                            </div>
+                        </div>
+                        <div class="customer-table-container">
+                            <table class="customer-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã KH</th>
+                                        <th>Họ và Tên</th>
+                                        <th>Số Điện Thoại</th>
+                                        <th>Tổng Mua Hàng</th>
+                                        <th>Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customerTableBody">
+                                    <!-- Customer data will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Order History Section -->
+            <section class="order-history-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history"></i> Lịch Sử Mua Hàng</h2>
+                        <div class="customer-info" id="selectedCustomerInfo" style="display: none;">
+                            <span id="selectedCustomerName"></span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="order-controls">
+                            <button id="addOrderBtn" class="btn-secondary" disabled>
+                                <i class="fas fa-plus"></i> Thêm Đơn Hàng
+                            </button>
+                        </div>
+                        <div class="order-table-container">
+                            <table class="order-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ngày</th>
+                                        <th>Sản Phẩm</th>
+                                        <th>Số Lượng</th>
+                                        <th>Đơn Giá</th>
+                                        <th>Tổng Tiền</th>
+                                        <th>Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orderTableBody">
+                                    <tr class="no-orders">
+                                        <td colspan="6">Chọn khách hàng để xem lịch sử mua hàng</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Order Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Thêm Đơn Hàng Mới</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="orderForm">
+                    <div class="form-group">
+                        <label for="productName">Tên Sản Phẩm</label>
+                        <input type="text" id="productName" name="productName" required placeholder="Nhập tên sản phẩm">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quantity">Số Lượng</label>
+                            <input type="number" id="quantity" name="quantity" required min="1" placeholder="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="unitPrice">Đơn Giá (₩)</label>
+                            <input type="number" id="unitPrice" name="unitPrice" required min="0" step="100" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" id="cancelOrder">Hủy</button>
+                        <button type="submit" class="btn-primary">Thêm Đơn Hàng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="config.js"></script>
+    <script>
+        // App initialization and event listeners will be added here
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔄 DOM loaded, initializing app...');
+            
+            // Check if required classes are available
+            if (typeof SupabaseCustomerManager === 'undefined') {
+                console.error('❌ SupabaseCustomerManager not loaded');
+                alert('Error: SupabaseCustomerManager not loaded. Please refresh the page.');
+                return;
+            }
+            
+            if (typeof window.supabase === 'undefined') {
+                console.error('❌ Supabase library not loaded');
+                alert('Error: Supabase library not loaded. Please check your internet connection.');
+                return;
+            }
+            
+            console.log('✅ All dependencies loaded, starting app...');
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
